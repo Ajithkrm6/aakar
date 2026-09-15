@@ -111,7 +111,7 @@ export async function createProject(appName: string) {
     // ========================================
     // Create base project with official CLI
     // ========================================
-    console.log(chalk.cyan(`\n🏗️  Creating ${framework.toUpperCase()} project...\n`))
+    console.log(chalk.cyan(`\n🏗️  Creating ${framework} project...\n`))
 
     const currentDir = process.cwd()
 

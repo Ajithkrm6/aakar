@@ -16,3 +16,5 @@ build/
 coverage/
 .nyc_output/
 .cache/
+CHAT_CONTEXT_SESSION.md
+QUICK_REFERENCE.md

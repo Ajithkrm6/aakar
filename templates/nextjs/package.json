@@ -1,6 +1,7 @@
 {
   "name": "nextjs-template",
   "version": "1.0.0",
+  "description": "",
   "private": true,
   "dependencies": {
     "react": "^19.2.8",
