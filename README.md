@@ -99,6 +99,74 @@ foundation** so the team can build the product on top of it.
 
 ------------------------------------------------------------------------
 
+## Getting Started (Local Development Setup)
+
+Since Aakar is not yet published to npm, you'll need to set it up locally and link it globally to use the `aakar` command.
+
+### Prerequisites
+
+- **Node.js** >= 18.17.0
+- **pnpm** >= 9.0.0 (install with `npm install -g pnpm@latest`)
+
+### Setup Steps
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/Ajithkrm6/client-generator.git
+   cd client-generator
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   pnpm install
+   ```
+
+3. **Link the CLI globally:**
+
+   ```bash
+   pnpm link --global
+   ```
+
+   This makes the `aakar` command available globally on your system.
+
+4. **Verify installation:**
+
+   ```bash
+   aakar --version
+   ```
+
+   You should see the version number displayed.
+
+### Usage
+
+Now you can create new projects from anywhere:
+
+```bash
+aakar <app-name>
+```
+
+Example:
+
+```bash
+aakar my-awesome-app
+```
+
+### Development
+
+To work on Aakar itself:
+
+```bash
+# Build TypeScript
+pnpm build
+
+# Run the generator in development mode
+pnpm dev
+```
+
+------------------------------------------------------------------------
+
 # Core Capabilities
 
 ## Application Architecture
