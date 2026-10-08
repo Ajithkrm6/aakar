@@ -13,9 +13,9 @@ ready to evolve into a real product.
 
 > **Shape your application. Build your product.**
 
-<p align="center">
-  <img src="./assets/aakar.png" alt="Aakar — The Frontend Foundation" width="720">
-</p>
+<div align="center">
+  <img src="./assets/AakarLogo.PNG" alt="Aakar — The Frontend Foundation" width="720">
+</div>
 
 
 ------------------------------------------------------------------------
