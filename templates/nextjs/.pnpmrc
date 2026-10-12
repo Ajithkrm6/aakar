@@ -1,0 +1,8 @@
+# pnpm configuration
+# Auto-approve builds for common packages that need compilation
+
+# Allow build scripts for essential packages
+ignore-scripts=false
+
+# Set script shell (Unix-style for cross-platform compatibility)
+shell=/bin/sh

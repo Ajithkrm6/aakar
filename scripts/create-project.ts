@@ -128,12 +128,32 @@ export async function createProject(appName: string) {
         execSync(`npx create-next-app@latest ${appName} --typescript --use-pnpm`, { cwd: currentDir, stdio: 'inherit' })
       }
     } else if (framework === 'vite') {
-      // Use create-vite
+      // Create Vite project by copying template + installing deps
+      // This avoids create-vite's interactive dev server prompt
       try {
-        execSync(`pnpm create vite@latest ${appName} -- --template react-ts`, { cwd: currentDir, stdio: 'inherit' })
-      } catch (error) {
-        console.log(chalk.yellow('Trying alternative Vite setup...\n'))
-        execSync(`pnpm create vite@latest ${appName} --template react-ts`, { cwd: currentDir, stdio: 'inherit' })
+        const viteTemplateDir = path.join(path.dirname(__dirname), 'templates', 'vite')
+        
+        // Copy base Vite template
+        fs.ensureDirSync(projectPath)
+        fs.copySync(viteTemplateDir, projectPath, { 
+          overwrite: true,
+          filter: (src) => {
+            // Skip node_modules and .git
+            return !src.includes('node_modules') && !src.includes('.git')
+          }
+        })
+        
+        // Update package.json with project name
+        const packageJsonPath = path.join(projectPath, 'package.json')
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
+        packageJson.name = appName
+        packageJson.version = '0.1.0'
+        fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
+        
+        console.log(chalk.green('✓ Vite project structure created'))
+      } catch (error: any) {
+        console.log(chalk.yellow('Trying pnpm create vite as fallback...\n'))
+        execSync(`pnpm create vite@latest ${appName} -- --template react-ts`, { cwd: currentDir, stdio: 'pipe' })
       }
     }
 
