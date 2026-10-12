@@ -32,10 +32,10 @@ export const PHASE2_QUESTIONS = [
     name: 'architecture',
     message: 'Project structure?',
     choices: [
-      { name: 'Modular Monolithic (features as modules)', value: 'modular' },
-      { name: 'Flat (simple structure)', value: 'flat' }
+      { name: 'Flat (simple src/ folder)', value: 'flat' },
+      { name: 'Modular (src/modules/ - for teams)', value: 'modular' }
     ],
-    default: 'modular'
+    default: 'flat'
   },
 
   {
@@ -45,10 +45,11 @@ export const PHASE2_QUESTIONS = [
     when: (answers: any) => answers.architecture === 'modular',
     choices: [
       { name: 'Auth Module (login, signup)', value: 'auth', checked: true },
-      { name: 'Profile Module (user profile)', value: 'profile', checked: true },
-      { name: 'Dashboard Module (overview)', value: 'dashboard', checked: false },
+      { name: 'Dashboard Module (overview)', value: 'dashboard', checked: true },
+      { name: 'Profile Module (user profile)', value: 'profile', checked: false },
       { name: 'Documents Module (file management)', value: 'documents', checked: false }
-    ]
+    ],
+    default: ['auth', 'dashboard']
   },
 
   // === STYLING ===

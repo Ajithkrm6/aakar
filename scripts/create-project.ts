@@ -248,9 +248,11 @@ export async function createProject(appName: string) {
     await copyReferenceTemplates(projectPath, config)
 
     // 4. Setup modular structure (if applicable)
-    if (config.architecture === 'modular' && config.framework === 'nextjs') {
+    if (config.architecture === 'modular') {
       await setupModularStructure(projectPath, config.sampleModules || [])
-      await setupFeatureGates(projectPath, config.sampleModules || [])
+      if (config.framework === 'nextjs') {
+        await setupFeatureGates(projectPath, config.sampleModules || [])
+      }
       await copyModuleTemplates(projectPath, config)
     }
 
@@ -324,99 +326,195 @@ async function setupComponentStructure(projectPath: string, config: ProjectConfi
  * Conditionally uses shadcn/ui or Tailwind-only layouts based on useShadcnUI
  */
 async function copyReferenceTemplates(projectPath: string, config: ProjectConfig) {
-  if (config.framework !== 'nextjs') {
-    return // Only for Next.js for now
-  }
-
-  const baseTemplateDir = path.join(path.dirname(__dirname), 'templates', 'nextjs')
-  
-  // Determine which layout variant to use
-  const layoutVariant = config.useShadcnUI ? 'shadcn' : 'tailwind'
-  const layoutTemplateDir = path.join(baseTemplateDir, 'components', 'layout', layoutVariant)
-  
-  // Enterprise structure: app/ (routes) and src/ (code) as siblings
-  const appPath = path.join(projectPath, 'app')
   const srcPath = path.join(projectPath, 'src')
+  const baseTemplateDir = path.join(path.dirname(__dirname), 'templates', config.framework)
 
-  // Copy layout components (shadcn or tailwind variant)
-  const layoutDestDir = path.join(srcPath, 'components', 'layout')
-  
-  if (fs.existsSync(layoutTemplateDir)) {
-    fs.copySync(layoutTemplateDir, layoutDestDir, { overwrite: true })
-    console.log(chalk.green(`✓ Layout components (${layoutVariant} variant) copied`))
-  }
-
-  // Copy layout with favicon setup (override default Next.js layout)
-  const layoutTemplate = path.join(baseTemplateDir, 'app', 'layout.tsx')
-  if (fs.existsSync(layoutTemplate)) {
-    fs.copySync(layoutTemplate, path.join(appPath, 'layout.tsx'), { overwrite: true })
-    console.log(chalk.green('✓ Layout with favicon links configured'))
-  }
-
-  // Copy welcome page (override default Next.js page with professional landing page)
-  const pageTemplate = path.join(baseTemplateDir, 'app', 'page.tsx')
-  if (fs.existsSync(pageTemplate)) {
-    fs.copySync(pageTemplate, path.join(appPath, 'page.tsx'), { overwrite: true })
-    console.log(chalk.green('✓ Professional landing page configured'))
-  }
-
-  // Copy public assets (favicons, manifest, images)
-  const publicTemplate = path.join(baseTemplateDir, 'public')
-  if (fs.existsSync(publicTemplate)) {
-    const publicDestDir = path.join(projectPath, 'public')
-    fs.ensureDirSync(publicDestDir)
-    // Copy all public assets (favicons, manifest, etc)
-    fs.copySync(publicTemplate, publicDestDir, { overwrite: true })
-    console.log(chalk.green('✓ Public assets (favicons, manifest) configured'))
-  }
-
-  // Copy dashboard example
-  const dashboardTemplate = path.join(baseTemplateDir, 'app', 'dashboard')
-  if (fs.existsSync(dashboardTemplate)) {
-    fs.ensureDirSync(path.join(appPath, 'dashboard'))
-    fs.copySync(dashboardTemplate, path.join(appPath, 'dashboard'), { overwrite: false })
-  }
-
-  // Copy utils folder with feature-gate and providers
-  const utilsTemplate = path.join(baseTemplateDir, 'src', 'utils')
-  if (fs.existsSync(utilsTemplate)) {
-    const utilsDestDir = path.join(srcPath, 'utils')
-    fs.ensureDirSync(utilsDestDir)
-    fs.copySync(utilsTemplate, utilsDestDir, { overwrite: true })
-    console.log(chalk.green('✓ Utils folder (feature-gate, providers, query-client) copied'))
-  }
-
-  // Copy shared components folder
-  const sharedTemplate = path.join(baseTemplateDir, 'components', 'shared')
-  if (fs.existsSync(sharedTemplate)) {
-    const sharedDestDir = path.join(srcPath, 'components', 'shared')
-    fs.ensureDirSync(sharedDestDir)
-    fs.copySync(sharedTemplate, sharedDestDir, { overwrite: true })
-    console.log(chalk.green('✓ Shared components (FeatureToggleButton) copied'))
-  }
-
-  // Copy NextAuth API route
-  const authApiTemplate = path.join(baseTemplateDir, 'app', 'api', 'auth')
-  if (fs.existsSync(authApiTemplate)) {
-    const authApiDest = path.join(appPath, 'api', 'auth')
-    fs.ensureDirSync(authApiDest)
-    
-    // Copy auth directory files
-    fs.copySync(authApiTemplate, authApiDest, { overwrite: true })
-    
-    // Handle the [...nextauth] special folder naming
-    const nextauthRouteTemplate = path.join(authApiDest, 'nextauth-route.ts')
-    if (fs.existsSync(nextauthRouteTemplate)) {
-      const nextauthFolder = path.join(authApiDest, '[...nextauth]')
-      fs.ensureDirSync(nextauthFolder)
-      fs.copyFileSync(nextauthRouteTemplate, path.join(nextauthFolder, 'route.ts'))
-      fs.removeSync(nextauthRouteTemplate) // Clean up temp file
+  if (config.framework === 'vite') {
+    // Copy UI components
+    const uiTemplateDir = path.join(baseTemplateDir, 'src', 'components', 'ui')
+    if (fs.existsSync(uiTemplateDir)) {
+      const uiDestDir = path.join(srcPath, 'components', 'ui')
+      fs.ensureDirSync(uiDestDir)
+      fs.copySync(uiTemplateDir, uiDestDir, { overwrite: true })
+      console.log(chalk.green('✓ UI components (shadcn) copied'))
     }
-    
-    console.log(chalk.green('✓ NextAuth API route configured'))
+
+    // Copy layout components
+    const layoutTemplateDir = path.join(baseTemplateDir, 'src', 'components', 'layout')
+    if (fs.existsSync(layoutTemplateDir)) {
+      const layoutDestDir = path.join(srcPath, 'components', 'layout')
+      fs.ensureDirSync(layoutDestDir)
+      fs.copySync(layoutTemplateDir, layoutDestDir, { overwrite: true })
+      console.log(chalk.green('✓ Layout components copied'))
+    }
+
+    // Copy shared components
+    const sharedTemplateDir = path.join(baseTemplateDir, 'src', 'components', 'shared')
+    if (fs.existsSync(sharedTemplateDir)) {
+      const sharedDestDir = path.join(srcPath, 'components', 'shared')
+      fs.ensureDirSync(sharedDestDir)
+      fs.copySync(sharedTemplateDir, sharedDestDir, { overwrite: true })
+      console.log(chalk.green('✓ Shared components copied'))
+    }
+
+    // Copy utils folder
+    const utilsTemplateDir = path.join(baseTemplateDir, 'src', 'utils')
+    if (fs.existsSync(utilsTemplateDir)) {
+      const utilsDestDir = path.join(srcPath, 'utils')
+      fs.ensureDirSync(utilsDestDir)
+      fs.copySync(utilsTemplateDir, utilsDestDir, { overwrite: true })
+      console.log(chalk.green('✓ Utils folder copied'))
+    }
+
+    // Copy hooks (useIsMobile, etc)
+    const hooksTemplateDir = path.join(baseTemplateDir, 'src', 'hooks')
+    if (fs.existsSync(hooksTemplateDir)) {
+      const hooksDestDir = path.join(srcPath, 'hooks')
+      fs.ensureDirSync(hooksDestDir)
+      fs.copySync(hooksTemplateDir, hooksDestDir, { overwrite: true })
+      console.log(chalk.green('✓ Hooks (useIsMobile, etc) copied'))
+    }
+
+    // Copy pages
+    const pagesTemplateDir = path.join(baseTemplateDir, 'src', 'pages')
+    if (fs.existsSync(pagesTemplateDir)) {
+      const pagesDestDir = path.join(srcPath, 'pages')
+      fs.ensureDirSync(pagesDestDir)
+      fs.copySync(pagesTemplateDir, pagesDestDir, { overwrite: false })
+      console.log(chalk.green('✓ Pages copied'))
+    }
+
+    // Copy router configuration
+    const routerTemplate = path.join(baseTemplateDir, 'src', 'router.tsx')
+    if (fs.existsSync(routerTemplate)) {
+      fs.copySync(routerTemplate, path.join(srcPath, 'router.tsx'), { overwrite: true })
+      console.log(chalk.green('✓ Router configuration copied'))
+    }
+
+    console.log(chalk.green('✓ Vite reference templates copied'))
+    return
   }
 
-  console.log(chalk.green('✓ Reference templates copied'))
+  if (config.framework === 'nextjs') {
+    // Determine which layout variant to use
+    const layoutVariant = config.useShadcnUI ? 'shadcn' : 'tailwind'
+    const layoutTemplateDir = path.join(baseTemplateDir, 'components', 'layout', layoutVariant)
+    
+    // Enterprise structure: app/ (routes) and src/ (code) as siblings
+    const appPath = path.join(projectPath, 'app')
+
+    // Copy UI components (all shadcn components - they're layout-agnostic)
+    if (config.useShadcnUI) {
+      const uiTemplateDir = path.join(baseTemplateDir, 'components', 'ui')
+      const uiDestDir = path.join(srcPath, 'components', 'ui')
+      
+      if (fs.existsSync(uiTemplateDir)) {
+        fs.ensureDirSync(uiDestDir)
+        fs.copySync(uiTemplateDir, uiDestDir, { overwrite: true })
+        console.log(chalk.green('✓ UI components (shadcn) copied'))
+      }
+    }
+
+    // Copy layout components (shadcn or tailwind variant)
+    const layoutDestDir = path.join(srcPath, 'components', 'layout')
+    
+    if (fs.existsSync(layoutTemplateDir)) {
+      fs.copySync(layoutTemplateDir, layoutDestDir, { overwrite: true })
+      console.log(chalk.green(`✓ Layout components (${layoutVariant} variant) copied`))
+    }
+
+    // Copy hooks (useIsMobile, etc)
+    const hooksTemplateDir = path.join(baseTemplateDir, 'src', 'hooks')
+    if (fs.existsSync(hooksTemplateDir)) {
+      const hooksDestDir = path.join(srcPath, 'hooks')
+      fs.ensureDirSync(hooksDestDir)
+      fs.copySync(hooksTemplateDir, hooksDestDir, { overwrite: true })
+      console.log(chalk.green('✓ Hooks (useIsMobile, etc) copied'))
+    }
+
+    // Copy lib utilities (utils.ts, etc)
+    const libTemplateDir = path.join(baseTemplateDir, 'src', 'lib')
+    if (fs.existsSync(libTemplateDir)) {
+      const libDestDir = path.join(srcPath, 'lib')
+      fs.ensureDirSync(libDestDir)
+      fs.copySync(libTemplateDir, libDestDir, { overwrite: true })
+      console.log(chalk.green('✓ Lib utilities (utils, etc) copied'))
+    }
+
+    // Copy layout with favicon setup (override default Next.js layout)
+    const layoutTemplate = path.join(baseTemplateDir, 'app', 'layout.tsx')
+    if (fs.existsSync(layoutTemplate)) {
+      fs.copySync(layoutTemplate, path.join(appPath, 'layout.tsx'), { overwrite: true })
+      console.log(chalk.green('✓ Layout with favicon links configured'))
+    }
+
+    // Copy welcome page (override default Next.js page with professional landing page)
+    const pageTemplate = path.join(baseTemplateDir, 'app', 'page.tsx')
+    if (fs.existsSync(pageTemplate)) {
+      fs.copySync(pageTemplate, path.join(appPath, 'page.tsx'), { overwrite: true })
+      console.log(chalk.green('✓ Professional landing page configured'))
+    }
+
+    // Copy public assets (favicons, manifest, images)
+    const publicTemplate = path.join(baseTemplateDir, 'public')
+    if (fs.existsSync(publicTemplate)) {
+      const publicDestDir = path.join(projectPath, 'public')
+      fs.ensureDirSync(publicDestDir)
+      // Copy all public assets (favicons, manifest, etc)
+      fs.copySync(publicTemplate, publicDestDir, { overwrite: true })
+      console.log(chalk.green('✓ Public assets (favicons, manifest) configured'))
+    }
+
+    // Copy dashboard example (only for modular architecture - it uses modules)
+    if (config.architecture === 'modular') {
+      const dashboardTemplate = path.join(baseTemplateDir, 'app', 'dashboard')
+      if (fs.existsSync(dashboardTemplate)) {
+        fs.ensureDirSync(path.join(appPath, 'dashboard'))
+        fs.copySync(dashboardTemplate, path.join(appPath, 'dashboard'), { overwrite: false })
+      }
+    }
+
+    // Copy utils folder with feature-gate and providers
+    const utilsTemplate = path.join(baseTemplateDir, 'src', 'utils')
+    if (fs.existsSync(utilsTemplate)) {
+      const utilsDestDir = path.join(srcPath, 'utils')
+      fs.ensureDirSync(utilsDestDir)
+      fs.copySync(utilsTemplate, utilsDestDir, { overwrite: true })
+      console.log(chalk.green('✓ Utils folder (feature-gate, providers, query-client) copied'))
+    }
+
+    // Copy shared components folder
+    const sharedTemplate = path.join(baseTemplateDir, 'components', 'shared')
+    if (fs.existsSync(sharedTemplate)) {
+      const sharedDestDir = path.join(srcPath, 'components', 'shared')
+      fs.ensureDirSync(sharedDestDir)
+      fs.copySync(sharedTemplate, sharedDestDir, { overwrite: true })
+      console.log(chalk.green('✓ Shared components (FeatureToggleButton) copied'))
+    }
+
+    // Copy NextAuth API route
+    const authApiTemplate = path.join(baseTemplateDir, 'app', 'api', 'auth')
+    if (fs.existsSync(authApiTemplate)) {
+      const authApiDest = path.join(appPath, 'api', 'auth')
+      fs.ensureDirSync(authApiDest)
+      
+      // Copy auth directory files
+      fs.copySync(authApiTemplate, authApiDest, { overwrite: true })
+      
+      // Handle the [...nextauth] special folder naming
+      const nextauthRouteTemplate = path.join(authApiDest, 'nextauth-route.ts')
+      if (fs.existsSync(nextauthRouteTemplate)) {
+        const nextauthFolder = path.join(authApiDest, '[...nextauth]')
+        fs.ensureDirSync(nextauthFolder)
+        fs.copyFileSync(nextauthRouteTemplate, path.join(nextauthFolder, 'route.ts'))
+        fs.removeSync(nextauthRouteTemplate) // Clean up temp file
+      }
+      
+      console.log(chalk.green('✓ NextAuth API route configured'))
+    }
+
+    console.log(chalk.green('✓ Next.js reference templates copied'))
+  }
 }
 
 /**

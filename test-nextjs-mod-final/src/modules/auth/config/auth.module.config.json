@@ -1,0 +1,9 @@
+{
+  "name": "auth",
+  "version": "1.0.0",
+  "description": "Auth module",
+  "enabled": true,
+  "stage": "core",
+  "dependencies": [],
+  "features": []
+}

@@ -16,8 +16,8 @@ import {
   TrendingUp,
   Home,
 } from 'lucide-react';
-import { Button } from '@/modules/shared/components/ui/button';
-import { Badge } from '@/modules/shared/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 /**
  * Submenu Item Interface
