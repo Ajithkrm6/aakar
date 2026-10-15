@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 import './globals.css'
 import { Providers } from '@/utils/providers'
+import { PrimaryLayout } from '@/components/layout/PrimaryLayout'
 
 export const metadata: Metadata = {
   title: 'Aakar App',
@@ -36,7 +37,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <Providers><PrimaryLayout>{children}</PrimaryLayout></Providers>
       </body>
     </html>
   )
