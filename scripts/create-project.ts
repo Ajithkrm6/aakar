@@ -424,6 +424,12 @@ async function copyReferenceTemplates(projectPath: string, config: ProjectConfig
     providerClose.unshift('</QueryClientProvider>')
   }
 
+  if (config.stateManagement === 'context') {
+    providerImports.push("import { AppProvider } from '@/stores/AppContext'")
+    providerOpen.push('<AppProvider>')
+    providerClose.unshift('</AppProvider>')
+  }
+
   if (config.stateManagement === 'redux') {
     providerImports.push("import { Provider } from 'react-redux'")
     providerImports.push("import { store } from '@/stores/store'")
@@ -672,7 +678,43 @@ async function setupStores(projectPath: string, config: ProjectConfig) {
   fs.ensureDirSync(storesPath)
 
   if (config.stateManagement === 'context') {
-    console.log(chalk.green('✓ React Context selected; no external store generated'))
+    const contextContent = `'use client'
+
+import { createContext, useContext, useState, type ReactNode } from 'react'
+
+interface AppContextValue {
+  theme: 'light' | 'dark'
+  sidebarOpen: boolean
+  setTheme: (theme: 'light' | 'dark') => void
+  toggleSidebar: () => void
+}
+
+const AppContext = createContext<AppContextValue | undefined>(undefined)
+
+export function AppProvider({ children }: { children: ReactNode }) {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  const value: AppContextValue = {
+    theme,
+    sidebarOpen,
+    setTheme,
+    toggleSidebar: () => setSidebarOpen((open) => !open),
+  }
+
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>
+}
+
+export function useAppContext() {
+  const context = useContext(AppContext)
+  if (!context) {
+    throw new Error('useAppContext must be used within an AppProvider')
+  }
+  return context
+}
+`
+    fs.writeFileSync(path.join(storesPath, 'AppContext.tsx'), contextContent)
+    console.log(chalk.green('✓ React Context provider created'))
     return
   }
 
