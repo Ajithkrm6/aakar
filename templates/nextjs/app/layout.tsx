@@ -1,12 +1,11 @@
 import type { Metadata, Viewport } from 'next'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import './globals.css'
 import { Providers } from '@/utils/providers'
-import { PrimaryLayout } from '@/components/layout/PrimaryLayout'
 
 export const metadata: Metadata = {
-  title: 'BS-Frontend-Generator App',
-  description: 'Professional frontend application built with BS-Frontend-Generator',
+  title: 'Aakar App',
+  description: 'A web application generated with Aakar',
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
@@ -19,7 +18,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'BS-Frontend-Generator',
+    title: 'Aakar',
   },
 }
 
@@ -37,11 +36,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body>
-        <Providers>
-          <PrimaryLayout>
-            {children}
-          </PrimaryLayout>
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
