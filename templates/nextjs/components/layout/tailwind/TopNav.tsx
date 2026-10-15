@@ -1,8 +1,7 @@
 /**
  * Top Navigation Component
- * Main navigation bar displayed at the top of the application
- * Shows user info, theme toggle, and navigation links
- * Built with Tailwind CSS (no shadcn/ui dependencies)
+ * Main navigation bar displayed at the top of the application.
+ * Uses Tailwind CSS only and does not require shadcn/ui.
  */
 
 'use client'
@@ -10,7 +9,6 @@
 import React from 'react'
 import Link from 'next/link'
 import { Menu, LogOut, Settings } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 interface TopNavProps {
   onMenuClick?: () => void
@@ -23,47 +21,36 @@ export const TopNav: React.FC<TopNavProps> = ({
   userName = 'User',
   className = '',
 }) => {
+  const iconButtonClass =
+    'inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
+
   return (
-    <header
-      className={`
-        sticky 
-        top-0 
-        z-40 
-        border-b 
-        border-border 
-        bg-background/95 
-        backdrop-blur 
-        supports-[backdrop-filter]:bg-background/60
-        ${className}
-      `}
-    >
+    <header className={`sticky top-0 z-40 border-b bg-white/95 backdrop-blur ${className}`}>
       <div className="flex h-14 items-center justify-between px-4 md:px-6">
-        {/* Left Section - Menu & Logo */}
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
+            type="button"
+            aria-label="Open navigation menu"
             onClick={onMenuClick}
-            className="md:hidden"
+            className={`${iconButtonClass} md:hidden`}
           >
             <Menu className="h-5 w-5" />
-          </Button>
+          </button>
           <Link href="/" className="flex items-center gap-2">
-            <span className="font-bold text-lg">Logo</span>
+            <span className="text-lg font-bold">Logo</span>
           </Link>
         </div>
 
-        {/* Right Section - User Menu */}
         <div className="flex items-center gap-2">
-          <div className="text-sm text-muted-foreground md:mr-4">
+          <div className="text-sm text-gray-600 md:mr-4">
             Welcome, {userName}
           </div>
-          <Button variant="ghost" size="icon">
+          <button type="button" aria-label="Settings" className={iconButtonClass}>
             <Settings className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
+          </button>
+          <button type="button" aria-label="Log out" className={iconButtonClass}>
             <LogOut className="h-5 w-5" />
-          </Button>
+          </button>
         </div>
       </div>
     </header>
