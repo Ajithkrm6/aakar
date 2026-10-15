@@ -28,14 +28,12 @@ import {
 } from '@/components/ui/sidebar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { featureGate } from '@/utils/feature-gate';
-import type { FeatureModuleKey } from '@/utils/features.config';
 
 interface SubmenuItem {
   label: string;
   href: string;
   badge?: string;
-  featureGate?: FeatureModuleKey;
+  featureGate?: string;
   badgeVariant?: 'default' | 'pro' | 'beta' | 'beta-s1' | 'beta-s2' | 'beta-s3' | 'beta-s4' | 'beta-s5';
 }
 
@@ -44,7 +42,7 @@ interface NavItem {
   label: string;
   href?: string;
   badge?: string;
-  featureGate?: FeatureModuleKey;
+  featureGate?: string;
   badgeVariant?: 'default' | 'pro' | 'beta' | 'beta-s1' | 'beta-s2' | 'beta-s3' | 'beta-s4' | 'beta-s5';
   submenu?: SubmenuItem[];
 }
@@ -238,14 +236,7 @@ export function NavigationSidebar() {
   }, [autoExpandedItems, expandedItems]);
 
   // Filter visible nav items based on feature gates
-  const visibleItems = useMemo(() => {
-    return NAV_ITEMS.filter((item) => {
-      // Home is always visible
-      if (item.href === '/') return true;
-      // Check if feature gate is enabled
-      return !item.featureGate || featureGate.isEnabled(item.featureGate);
-    });
-  }, []);
+  const visibleItems = NAV_ITEMS;
 
   const toggleExpanded = (label: string) => {
     const newSet = new Set(expandedItems);
@@ -314,9 +305,7 @@ export function NavigationSidebar() {
               }
 
               // Filter submenu items based on feature gates
-              const visibleSubmenu = (item.submenu || []).filter(
-                (subitem) => !subitem.featureGate || featureGate.isEnabled(subitem.featureGate)
-              );
+              const visibleSubmenu = item.submenu || [];
 
               if (visibleSubmenu.length === 0) return null;
 
