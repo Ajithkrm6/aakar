@@ -1,7 +1,6 @@
 'use client';
 
-import { ReactNode, useMemo, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { ReactNode, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { NavigationSidebar } from './NavigationSidebar';
@@ -51,10 +50,7 @@ const ROUTE_CONFIG = {
  * @returns {React.ReactElement}
  */
 export function PrimaryLayout({ children, title, description }: LayoutProps) {
-  // Authentication state
-  const { data: session, status } = useSession();
-  
-  // Navigation state
+    // Navigation state
   const pathname = usePathname();
 
   /**
