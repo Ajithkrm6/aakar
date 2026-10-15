@@ -381,14 +381,75 @@ async function copyReferenceTemplates(projectPath: string, config: ProjectConfig
     }
   }
 
-  // Copy utils folder with feature-gate and providers
+  // Copy only utilities required by the selected options.
   const utilsTemplate = path.join(baseTemplateDir, 'src', 'utils')
-  if (fs.existsSync(utilsTemplate)) {
-    const utilsDestDir = path.join(srcPath, 'utils')
-    fs.ensureDirSync(utilsDestDir)
-    fs.copySync(utilsTemplate, utilsDestDir, { overwrite: true })
-    console.log(chalk.green('✓ Utils folder (feature-gate, providers, query-client) copied'))
+  const utilsDestDir = path.join(srcPath, 'utils')
+  fs.ensureDirSync(utilsDestDir)
+
+  if (config.dataFetching === 'react-query') {
+    const queryClientTemplate = path.join(utilsTemplate, 'query-client.ts')
+    if (fs.existsSync(queryClientTemplate)) {
+      fs.copySync(queryClientTemplate, path.join(utilsDestDir, 'query-client.ts'), { overwrite: true })
+    }
   }
+
+  if (includeModularExamples) {
+    const featureGateTemplate = path.join(utilsTemplate, 'feature-gate.ts')
+    if (fs.existsSync(featureGateTemplate)) {
+      fs.copySync(featureGateTemplate, path.join(utilsDestDir, 'feature-gate.ts'), { overwrite: true })
+    }
+  }
+
+  // Generate providers from the user's selections rather than copying a fixed provider.
+  const providerImports = ["import type { ReactNode } from 'react'"]
+  const providerOpen = []
+  const providerClose = []
+
+  if (includeModularExamples && selectedModules.has('auth')) {
+    providerImports.push("import { SessionProvider } from 'next-auth/react'")
+    providerOpen.push('<SessionProvider>')
+    providerClose.unshift('</SessionProvider>')
+  }
+
+  if (config.useShadcnUI) {
+    providerImports.push("import { TooltipProvider } from '@/components/ui/tooltip'")
+    providerOpen.push('<TooltipProvider>')
+    providerClose.unshift('</TooltipProvider>')
+  }
+
+  if (config.dataFetching === 'react-query') {
+    providerImports.push("import { QueryClientProvider } from '@tanstack/react-query'")
+    providerImports.push("import { queryClient } from '@/utils/query-client'")
+    providerOpen.push('<QueryClientProvider client={queryClient}>')
+    providerClose.unshift('</QueryClientProvider>')
+  }
+
+  if (config.stateManagement === 'redux') {
+    providerImports.push("import { Provider } from 'react-redux'")
+    providerImports.push("import { store } from '@/stores/store'")
+    providerOpen.push('<Provider store={store}>')
+    providerClose.unshift('</Provider>')
+  }
+
+  const providerChildren = ['{children}']
+  const providerContent = `'use client'
+
+${providerImports.join('\\n')}
+
+interface ProvidersProps {
+  children: ReactNode
+}
+
+export function Providers({ children }: ProvidersProps) {
+  return (
+    ${providerOpen.length ? providerOpen.join('\\n      ') + '\\n        ' : ''}${providerChildren.join('')}
+    ${providerClose.length ? '\\n      ' + providerClose.join('\\n      ') : ''}
+  )
+}
+`
+
+  fs.writeFileSync(path.join(utilsDestDir, 'providers.tsx'), providerContent)
+  console.log(chalk.green('✓ Providers configured for selected libraries'))
 
   // Feature-toggle UI is part of the modular examples, not the flat starter.
   if (includeModularExamples) {
@@ -608,7 +669,32 @@ export default preview
 
 async function setupStores(projectPath: string, config: ProjectConfig) {
   const storesPath = path.join(projectPath, 'src', 'stores')
-  
+  fs.ensureDirSync(storesPath)
+
+  if (config.stateManagement === 'context') {
+    console.log(chalk.green('✓ React Context selected; no external store generated'))
+    return
+  }
+
+  if (config.stateManagement === 'redux') {
+    const reduxStoreContent = `import { configureStore } from '@reduxjs/toolkit'
+
+export const store = configureStore({
+  reducer: {},
+})
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
+`
+    fs.writeFileSync(path.join(storesPath, 'store.ts'), reduxStoreContent)
+    console.log(chalk.green('✓ Redux Toolkit store created'))
+    return
+  }
+
+  if (config.stateManagement !== 'zustand') {
+    throw new Error(`Unsupported state management option: ${config.stateManagement}`)
+  }
+
   // Global store with Immer
   const globalStoreContent = `import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
@@ -849,9 +935,12 @@ async function setupDependencies(projectPath: string, config: ProjectConfig) {
     'zod',
     '@hookform/resolvers',
     'axios',
-    'lucide-react',  // Required for icons in landing page and components
-    'next-auth'  // Authentication library
+    'lucide-react' // Required for icons in landing page and components
   )
+
+  if (config.framework === 'nextjs' && config.architecture === 'modular' && (config.sampleModules || []).includes('auth')) {
+    packages.push('next-auth')
+  }
 
   // Styling
   if (config.styling === 'tailwind') {
