@@ -434,7 +434,7 @@ async function copyReferenceTemplates(projectPath: string, config: ProjectConfig
   const providerChildren = ['{children}']
   const providerContent = `'use client'
 
-${providerImports.join('\\n')}
+${providerImports.join('\n')}
 
 interface ProvidersProps {
   children: ReactNode
@@ -442,8 +442,8 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    ${providerOpen.length ? providerOpen.join('\\n      ') + '\\n        ' : ''}${providerChildren.join('')}
-    ${providerClose.length ? '\\n      ' + providerClose.join('\\n      ') : ''}
+    ${providerOpen.length ? providerOpen.join('\n      ') + '\n        ' : ''}${providerChildren.join('')}
+    ${providerClose.length ? '\n      ' + providerClose.join('\n      ') : ''}
   )
 }
 `
