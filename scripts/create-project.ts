@@ -330,8 +330,14 @@ async function copyReferenceTemplates(projectPath: string, config: ProjectConfig
 
   const baseTemplateDir = path.join(path.dirname(__dirname), 'templates', 'nextjs')
   
-  // Determine which layout variant to use
-  const layoutVariant = config.useShadcnUI ? 'shadcn' : 'tailwind'
+  // Layout selection follows both styling and component-library choices:
+  // CSS Modules => plain CSS Modules; Tailwind + shadcn => shadcn; otherwise Tailwind-only.
+  const layoutVariant =
+    config.styling === 'css-modules'
+      ? 'css-modules'
+      : config.useShadcnUI
+        ? 'shadcn'
+        : 'tailwind'
   const layoutTemplateDir = path.join(baseTemplateDir, 'components', 'layout', layoutVariant)
   
   // Enterprise structure: app/ (routes) and src/ (code) as siblings
