@@ -1,0 +1,110 @@
+.topNav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  min-height: 3.5rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 0 1.25rem;
+}
+
+.brand {
+  color: #111827;
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.iconButton {
+  display: inline-flex;
+  min-height: 2.25rem;
+  min-width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: #374151;
+  cursor: pointer;
+}
+
+.iconButton:hover {
+  background: #f3f4f6;
+}
+
+.sideNav {
+  display: flex;
+  width: 15rem;
+  min-height: 100%;
+  flex-direction: column;
+  border-right: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 1rem;
+}
+
+.navList {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  border-radius: 0.375rem;
+  color: #374151;
+  padding: 0.625rem 0.75rem;
+  text-decoration: none;
+}
+
+.navLink:hover,
+.navLinkActive {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.main {
+  min-width: 0;
+  flex: 1;
+  overflow: auto;
+  background: #f9fafb;
+  padding: 1.5rem;
+}
+
+.content {
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .topNav {
+    padding: 0 0.75rem;
+  }
+
+  .sideNav {
+    width: 100%;
+    min-height: auto;
+    border-right: 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .main {
+    padding: 1rem;
+  }
+}
