@@ -439,26 +439,29 @@ async function copyModuleTemplates(projectPath: string, config: ProjectConfig) {
   // Enterprise structure: app/ (routes) and src/ (code) as siblings
   const appPath = path.join(projectPath, 'app')
   const srcPath = path.join(projectPath, 'src')
+  const selectedModules = new Set(config.sampleModules || [])
 
-  // Copy auth module
-  const authModuleTemplate = path.join(templateDir, 'src', 'modules', 'auth')
-  if (fs.existsSync(authModuleTemplate)) {
-    fs.ensureDirSync(path.join(srcPath, 'modules', 'auth'))
-    fs.copySync(authModuleTemplate, path.join(srcPath, 'modules', 'auth'), { overwrite: false })
+  // Copy only module examples explicitly selected in the questionnaire.
+  if (selectedModules.has('auth')) {
+    const authModuleTemplate = path.join(templateDir, 'src', 'modules', 'auth')
+    if (fs.existsSync(authModuleTemplate)) {
+      fs.ensureDirSync(path.join(srcPath, 'modules', 'auth'))
+      fs.copySync(authModuleTemplate, path.join(srcPath, 'modules', 'auth'), { overwrite: false })
+    }
+
+    const authPagesTemplate = path.join(templateDir, 'app', 'auth')
+    if (fs.existsSync(authPagesTemplate)) {
+      fs.ensureDirSync(path.join(appPath, 'auth'))
+      fs.copySync(authPagesTemplate, path.join(appPath, 'auth'), { overwrite: false })
+    }
   }
 
-  // Copy auth pages
-  const authPagesTemplate = path.join(templateDir, 'app', 'auth')
-  if (fs.existsSync(authPagesTemplate)) {
-    fs.ensureDirSync(path.join(appPath, 'auth'))
-    fs.copySync(authPagesTemplate, path.join(appPath, 'auth'), { overwrite: false })
-  }
-
-  // Copy dashboard module
-  const dashboardModuleTemplate = path.join(templateDir, 'src', 'modules', 'dashboard')
-  if (fs.existsSync(dashboardModuleTemplate)) {
-    fs.ensureDirSync(path.join(srcPath, 'modules', 'dashboard'))
-    fs.copySync(dashboardModuleTemplate, path.join(srcPath, 'modules', 'dashboard'), { overwrite: false })
+  if (selectedModules.has('dashboard')) {
+    const dashboardModuleTemplate = path.join(templateDir, 'src', 'modules', 'dashboard')
+    if (fs.existsSync(dashboardModuleTemplate)) {
+      fs.ensureDirSync(path.join(srcPath, 'modules', 'dashboard'))
+      fs.copySync(dashboardModuleTemplate, path.join(srcPath, 'modules', 'dashboard'), { overwrite: false })
+    }
   }
 
   // Copy template reference guide
