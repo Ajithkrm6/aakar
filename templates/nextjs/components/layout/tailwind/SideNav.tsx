@@ -1,13 +1,12 @@
 /**
  * Side Navigation Component
- * Collapsible sidebar navigation for main app sections
- * Shows different menu items based on modules/routes
- * Built with Tailwind CSS (no shadcn/ui dependencies)
+ * Collapsible sidebar for main application sections.
+ * Uses Tailwind CSS only and does not require shadcn/ui.
  */
 
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -15,11 +14,8 @@ import {
   Settings,
   LogOut,
   ChevronLeft,
-  Home,
   Users,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 
 interface NavItem {
   href: string
@@ -35,21 +31,9 @@ interface SideNavProps {
 }
 
 const defaultNavItems: NavItem[] = [
-  {
-    href: '/dashboard',
-    label: 'Dashboard',
-    icon: <LayoutDashboard className="h-5 w-5" />,
-  },
-  {
-    href: '/team',
-    label: 'Team',
-    icon: <Users className="h-5 w-5" />,
-  },
-  {
-    href: '/settings',
-    label: 'Settings',
-    icon: <Settings className="h-5 w-5" />,
-  },
+  { href: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
+  { href: '/team', label: 'Team', icon: <Users className="h-5 w-5" /> },
+  { href: '/settings', label: 'Settings', icon: <Settings className="h-5 w-5" /> },
 ]
 
 export const SideNav: React.FC<SideNavProps> = ({
@@ -59,50 +43,40 @@ export const SideNav: React.FC<SideNavProps> = ({
   className = '',
 }) => {
   const pathname = usePathname()
+  const iconButtonClass =
+    'inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
 
   return (
     <>
-      {/* Mobile Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 md:hidden"
           onClick={onClose}
+          aria-hidden="true"
         />
       )}
 
-      {/* Sidebar */}
       <aside
-        className={cn(
-          'fixed left-0 top-0 z-40 flex flex-col border-r border-border bg-background transition-transform duration-200 md:static md:translate-x-0',
-          isOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64',
-          className
-        )}
+        className={`fixed left-0 top-0 z-40 flex h-full w-64 flex-col border-r bg-white transition-transform duration-200 md:static md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'} ${className}`}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-border p-4">
-          <h2 className="font-bold text-lg">Menu</h2>
-          <Button
-            variant="ghost"
-            size="icon"
+        <div className="flex items-center justify-between border-b p-4">
+          <h2 className="text-lg font-bold">Menu</h2>
+          <button
+            type="button"
+            aria-label="Close navigation menu"
             onClick={onClose}
-            className="md:hidden"
+            className={`${iconButtonClass} md:hidden`}
           >
             <ChevronLeft className="h-5 w-5" />
-          </Button>
+          </button>
         </div>
 
-        {/* Navigation Items */}
         <nav className="flex-1 space-y-2 p-4">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={cn(
-                'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
-                pathname === item.href
-                  ? 'bg-accent text-accent-foreground'
-                  : 'hover:bg-accent/50'
-              )}
+              className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${pathname === item.href ? 'bg-blue-100 text-blue-900' : 'hover:bg-gray-100'}`}
             >
               {item.icon}
               <span>{item.label}</span>
@@ -110,12 +84,14 @@ export const SideNav: React.FC<SideNavProps> = ({
           ))}
         </nav>
 
-        {/* Footer */}
-        <div className="border-t border-border p-4">
-          <Button variant="ghost" className="w-full justify-start gap-3">
+        <div className="border-t p-4">
+          <button
+            type="button"
+            className="inline-flex w-full items-center justify-start gap-3 rounded-md px-3 py-2 text-sm hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
             <LogOut className="h-5 w-5" />
-            <span>Logout</span>
-          </Button>
+            <span>Log out</span>
+          </button>
         </div>
       </aside>
     </>
