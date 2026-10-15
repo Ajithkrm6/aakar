@@ -108,3 +108,23 @@
     padding: 1rem;
   }
 }
+
+.layoutRow {
+  display: flex;
+  min-height: calc(100vh - 3.5rem);
+}
+
+.sidebar {
+  display: none;
+}
+
+.sidebarOpen {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .sidebar,
+  .sidebarOpen {
+    display: block;
+  }
+}
