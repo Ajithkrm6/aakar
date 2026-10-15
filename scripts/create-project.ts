@@ -337,6 +337,8 @@ async function copyReferenceTemplates(projectPath: string, config: ProjectConfig
   // Enterprise structure: app/ (routes) and src/ (code) as siblings
   const appPath = path.join(projectPath, 'app')
   const srcPath = path.join(projectPath, 'src')
+  const includeModularExamples = config.architecture === 'modular'
+  const selectedModules = new Set(config.sampleModules || [])
 
   // Copy layout components (shadcn or tailwind variant)
   const layoutDestDir = path.join(srcPath, 'components', 'layout')
@@ -370,11 +372,13 @@ async function copyReferenceTemplates(projectPath: string, config: ProjectConfig
     console.log(chalk.green('✓ Public assets (favicons, manifest) configured'))
   }
 
-  // Copy dashboard example
-  const dashboardTemplate = path.join(baseTemplateDir, 'app', 'dashboard')
-  if (fs.existsSync(dashboardTemplate)) {
-    fs.ensureDirSync(path.join(appPath, 'dashboard'))
-    fs.copySync(dashboardTemplate, path.join(appPath, 'dashboard'), { overwrite: false })
+  // Sample feature routes belong only to the modular architecture.
+  if (includeModularExamples && selectedModules.has('dashboard')) {
+    const dashboardTemplate = path.join(baseTemplateDir, 'app', 'dashboard')
+    if (fs.existsSync(dashboardTemplate)) {
+      fs.ensureDirSync(path.join(appPath, 'dashboard'))
+      fs.copySync(dashboardTemplate, path.join(appPath, 'dashboard'), { overwrite: false })
+    }
   }
 
   // Copy utils folder with feature-gate and providers
@@ -386,34 +390,37 @@ async function copyReferenceTemplates(projectPath: string, config: ProjectConfig
     console.log(chalk.green('✓ Utils folder (feature-gate, providers, query-client) copied'))
   }
 
-  // Copy shared components folder
-  const sharedTemplate = path.join(baseTemplateDir, 'components', 'shared')
-  if (fs.existsSync(sharedTemplate)) {
-    const sharedDestDir = path.join(srcPath, 'components', 'shared')
-    fs.ensureDirSync(sharedDestDir)
-    fs.copySync(sharedTemplate, sharedDestDir, { overwrite: true })
-    console.log(chalk.green('✓ Shared components (FeatureToggleButton) copied'))
+  // Feature-toggle UI is part of the modular examples, not the flat starter.
+  if (includeModularExamples) {
+    const sharedTemplate = path.join(baseTemplateDir, 'components', 'shared')
+    if (fs.existsSync(sharedTemplate)) {
+      const sharedDestDir = path.join(srcPath, 'components', 'shared')
+      fs.ensureDirSync(sharedDestDir)
+      fs.copySync(sharedTemplate, sharedDestDir, { overwrite: true })
+      console.log(chalk.green('✓ Shared components (FeatureToggleButton) copied'))
+    }
   }
 
-  // Copy NextAuth API route
-  const authApiTemplate = path.join(baseTemplateDir, 'app', 'api', 'auth')
-  if (fs.existsSync(authApiTemplate)) {
-    const authApiDest = path.join(appPath, 'api', 'auth')
-    fs.ensureDirSync(authApiDest)
-    
-    // Copy auth directory files
-    fs.copySync(authApiTemplate, authApiDest, { overwrite: true })
-    
-    // Handle the [...nextauth] special folder naming
-    const nextauthRouteTemplate = path.join(authApiDest, 'nextauth-route.ts')
-    if (fs.existsSync(nextauthRouteTemplate)) {
-      const nextauthFolder = path.join(authApiDest, '[...nextauth]')
-      fs.ensureDirSync(nextauthFolder)
-      fs.copyFileSync(nextauthRouteTemplate, path.join(nextauthFolder, 'route.ts'))
-      fs.removeSync(nextauthRouteTemplate) // Clean up temp file
+  // Add the demo auth endpoint only when the auth module was requested.
+  if (includeModularExamples && selectedModules.has('auth')) {
+    const authApiTemplate = path.join(baseTemplateDir, 'app', 'api', 'auth')
+    if (fs.existsSync(authApiTemplate)) {
+      const authApiDest = path.join(appPath, 'api', 'auth')
+      fs.ensureDirSync(authApiDest)
+
+      fs.copySync(authApiTemplate, authApiDest, { overwrite: true })
+
+      // Handle the [...nextauth] special folder naming.
+      const nextauthRouteTemplate = path.join(authApiDest, 'nextauth-route.ts')
+      if (fs.existsSync(nextauthRouteTemplate)) {
+        const nextauthFolder = path.join(authApiDest, '[...nextauth]')
+        fs.ensureDirSync(nextauthFolder)
+        fs.copyFileSync(nextauthRouteTemplate, path.join(nextauthFolder, 'route.ts'))
+        fs.removeSync(nextauthRouteTemplate)
+      }
+
+      console.log(chalk.green('✓ NextAuth API route configured'))
     }
-    
-    console.log(chalk.green('✓ NextAuth API route configured'))
   }
 
   console.log(chalk.green('✓ Reference templates copied'))
